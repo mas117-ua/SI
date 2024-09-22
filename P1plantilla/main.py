@@ -19,24 +19,28 @@ AMARILLO=(255, 255, 0)
 # Funciones
 # ---------------------------------------------------------------------
 
-def imprimir_matriz_estados(matriz):
-    for fila in matriz:
-        print(" ".join(str(celda) for celda in fila))
+
 
 
 
 def astar(mapa, origen, destino, camino):
     cal_tot = 0
+    i = 0
+    contador_nodos = 0
+
     li = []
     lf = []
     estado_origen = Estado(origen.getFila(), origen.getCol(), 0, 0, padre=None)
     lf.append(estado_origen)
 
-    mapa_estados = [[-1 for j in range(mapa.getAncho())] for i in range(mapa.getAlto())]
+    mapa_nodos = [[-1 for j in range(mapa.getAncho())] for i in range(mapa.getAlto())]
 
     while lf:
         # Obtenemos el nodo con menor f de lf:
         n = lf[0]  # n = estado con menor f
+        mapa_nodos[lf[i].getPos()[0]][lf[i].getPos()[1]] = contador_nodos
+        contador_nodos += 1
+
         for est in lf:
             if est.getF() < n.getF():
                 n = est
@@ -52,6 +56,9 @@ def astar(mapa, origen, destino, camino):
                 else:
                     cal_tot += mapa.calorias(Casilla(n.getPos()[0], n.getPos()[1]))
 
+
+
+
                 n = n.getPadre()
             camino_reconstruido.reverse()  # Invertimos el camino
 
@@ -60,7 +67,10 @@ def astar(mapa, origen, destino, camino):
                 camino[fila][col] = 'X'  # Marcar el camino de solución con 'X' por ejemplo
 
             print("Camino encontrado:", camino_reconstruido)
-            imprimir_matriz_estados(mapa_estados)
+
+            print("Orden de generación de los estados:")
+            for fila in mapa_nodos:
+                print(" ".join(f"{valor:2}" for valor in fila))  # Alinear con un ancho de 2
 
             return coste_tot, cal_tot  # Terminar la función, ya que hemos encontrado el destino
 
@@ -96,12 +106,8 @@ def astar(mapa, origen, destino, camino):
                                     estadolf.setG(coste_g_m)  # Actualizar g
                                 break
 
-                # Para imprimir los costes
-                if m[0] == origen.getFila() and m[1] == origen.getCol():
-                    mapa_estados[m[0]][m[1]] = 0
-                else:
-                    mapa_estados[m[0]][m[1]] = int(coste_g_m)
 
+    i += 1
     print("Error: no se encuentra solución con el algoritmo")
 
 
