@@ -1,9 +1,9 @@
 class Estado():
-    def __init__(self,x,y,g,h,padre=None):
+    def __init__(self,x,y,g,f,padre=None):
         self.pos = x,y
         self.g = g
         self.h = 0
-        self.f = g + h
+        self.f = f
         self.padre = padre
     def getF(self):
         return self.f

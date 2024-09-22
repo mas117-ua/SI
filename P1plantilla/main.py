@@ -26,6 +26,7 @@ def imprimir_matriz_estados(matriz):
 
 
 def astar(mapa, origen, destino, camino):
+    coste_tot = 0
     li = []
     lf = []
     estado_origen = Estado(origen.getFila(), origen.getCol(), 0, 0, padre=None)
@@ -41,6 +42,7 @@ def astar(mapa, origen, destino, camino):
                 n = est
 
         if n.getPos() == (destino.getFila(), destino.getCol()):
+            coste_tot = n.getF()  # Utilizamos n.getF() para el coste total
             # Reconstruir camino
             camino_reconstruido = []
             while n is not None:
@@ -53,42 +55,31 @@ def astar(mapa, origen, destino, camino):
                 camino[fila][col] = 'X'  # Marcar el camino de solución con 'X' por ejemplo
 
             print("Camino encontrado:", camino_reconstruido)
-
-
-
             imprimir_matriz_estados(mapa_estados)
 
-            return  # Terminar la función, ya que hemos encontrado el destino
-
+            return coste_tot  # Terminar la función, ya que hemos encontrado el destino
 
         else:
             lf.remove(n)
             li.append(n)
-            # m son los hijos de n, es decir las posiciones válidas a partir del estado con menor f
-            # m son los hijos de n, es decir las posiciones válidas a partir del estado con menor f
+
+            # Obtener los hijos de n
             hijos_n = []
-
-            # Convertimos n.getPos() (una tupla) a Casilla
             casilla_n = Casilla(n.getPos()[0], n.getPos()[1])
-
-            # Obtenemos los movimientos válidos a partir de la Casilla n
             hijos_casilla_n = mapa.movimientosValidos(casilla_n)
 
-            # Añadimos cada uno de los movimientos a hijos_n como tuplas
             for movimiento in hijos_casilla_n:
-                hijos_n.append((movimiento[0], movimiento[1]))  # Asumimos que movimiento es una tupla
-            #entonces en hijos_n tenemos tuplas de las posiciones validas
+                hijos_n.append((movimiento[0], movimiento[1]))
 
-            for m in hijos_n:  # Recorremos cada tupla de n (cada posición válida desde n)
-                coste_g_m = 0
-                coste_f_m = 0
+            for m in hijos_n:  # Recorremos cada tupla de n
+                # Calcular g y f
+                coste_g_m = n.getG() + mapa.coste(n.getPos(), (m[0], m[1]))
+                coste_f_m = coste_g_m  # f = g porque h = 0
+
                 # Verificamos si m no está en la lista interior (li)
                 if not any(estadoli.getPos() == m for estadoli in li):
-                    # Si m no está en la lista interior, calculamos g'(m)
-                    coste_g_m = n.getG() + mapa.coste(n.getPos(), (m[0], m[1]))
-                    coste_f_m = coste_g_m
-                    if not any(estadolf.getPos() == m for estadolf in
-                               lf):  # Verificamos si m no está en la lista frontera (lf)
+                    # Si m no está en la lista frontera (lf)
+                    if not any(estadolf.getPos() == m for estadolf in lf):
                         estado_m = Estado(m[0], m[1], coste_g_m, coste_f_m, padre=n)
                         lf.append(estado_m)
                     else:
@@ -96,20 +87,17 @@ def astar(mapa, origen, destino, camino):
                             if estadolf.getPos() == m:
                                 if coste_g_m < estadolf.getG():
                                     estadolf.setPadre(n)
-                                    estadolf.setF(coste_f_m)
-                                    estadolf.setG(coste_g_m)
+                                    estadolf.setF(coste_f_m)  # Actualizar f
+                                    estadolf.setG(coste_g_m)  # Actualizar g
                                 break
-                    #para imprimir los costes
-                    if m[0] == origen.getFila() and m[1] == origen.getCol():
-                        mapa_estados[m[0]][m[1]] = 0
-                    else:
-                        mapa_estados[m[0]][m[1]] = int(coste_g_m)
-                    
+
+                # Para imprimir los costes
+                if m[0] == origen.getFila() and m[1] == origen.getCol():
+                    mapa_estados[m[0]][m[1]] = 0
+                else:
+                    mapa_estados[m[0]][m[1]] = int(coste_g_m)
 
     print("Error: no se encuentra solución con el algoritmo")
-
-
-
 
 
 
