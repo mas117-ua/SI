@@ -19,7 +19,9 @@ AMARILLO=(255, 255, 0)
 # Funciones
 # ---------------------------------------------------------------------
 
-
+def imprimir_matriz_estados(matriz):
+    for fila in matriz:
+        print(" ".join(str(celda) for celda in fila))
 
 
 
@@ -28,6 +30,8 @@ def astar(mapa, origen, destino, camino):
     lf = []
     estado_origen = Estado(origen.getFila(), origen.getCol(), 0, 0, padre=None)
     lf.append(estado_origen)
+
+    mapa_estados = [[-1 for j in range(mapa.getAncho())] for i in range(mapa.getAlto())]
 
     while lf:
         # Obtenemos el nodo con menor f de lf:
@@ -46,9 +50,14 @@ def astar(mapa, origen, destino, camino):
 
             # Marcar el camino en la matriz 'camino' para visualizarlo
             for (fila, col) in camino_reconstruido:
-                camino[fila][col] = 'C'  # Marcar el camino de solución con 'C' por ejemplo
+                camino[fila][col] = 'X'  # Marcar el camino de solución con 'X' por ejemplo
 
             print("Camino encontrado:", camino_reconstruido)
+
+
+
+            imprimir_matriz_estados(mapa_estados)
+
             return  # Terminar la función, ya que hemos encontrado el destino
 
 
@@ -90,6 +99,12 @@ def astar(mapa, origen, destino, camino):
                                     estadolf.setF(coste_f_m)
                                     estadolf.setG(coste_g_m)
                                 break
+                    #para imprimir los costes
+                    if m[0] == origen.getFila() and m[1] == origen.getCol():
+                        mapa_estados[m[0]][m[1]] = 0
+                    else:
+                        mapa_estados[m[0]][m[1]] = int(coste_g_m)
+                    
 
     print("Error: no se encuentra solución con el algoritmo")
 
@@ -245,7 +260,7 @@ def main():
         # Pinta el mapa
         for fil in range(mapi.getAlto()):
             for col in range(mapi.getAncho()):
-                if camino[fil][col] == 'C':  # Si es parte del camino
+                if camino[fil][col] == 'X':  # Si es parte del camino
                     pygame.draw.rect(screen, AMARILLO,
                                      [(TAM + MARGEN) * col + MARGEN, (TAM + MARGEN) * fil + MARGEN, TAM, TAM], 0)
                 elif mapi.getCelda(fil, col) == 0:
