@@ -26,7 +26,7 @@ def imprimir_matriz_estados(matriz):
 
 
 def astar(mapa, origen, destino, camino):
-    coste_tot = 0
+    cal_tot = 0
     li = []
     lf = []
     estado_origen = Estado(origen.getFila(), origen.getCol(), 0, 0, padre=None)
@@ -47,6 +47,8 @@ def astar(mapa, origen, destino, camino):
             camino_reconstruido = []
             while n is not None:
                 camino_reconstruido.append(n.getPos())
+                cal_tot += mapa.calorias(Casilla(n.getPos()[0], n.getPos()[1]))
+
                 n = n.getPadre()
             camino_reconstruido.reverse()  # Invertimos el camino
 
@@ -57,7 +59,7 @@ def astar(mapa, origen, destino, camino):
             print("Camino encontrado:", camino_reconstruido)
             imprimir_matriz_estados(mapa_estados)
 
-            return coste_tot  # Terminar la función, ya que hemos encontrado el destino
+            return coste_tot,cal_tot  # Terminar la función, ya que hemos encontrado el destino
 
         else:
             lf.remove(n)
@@ -208,7 +210,7 @@ def main():
                             ###########################
                             #coste, cal=llamar a A estrella
                             #coste, cal = astar(mapi, origen, destino, camino)
-                            coste = astar(mapi,origen,destino,camino)
+                            coste, cal = astar(mapi,origen,destino,camino)
 
                             if coste==-1:
                                 print('Error: No existe un camino válido entre origen y destino')

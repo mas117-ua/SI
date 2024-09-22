@@ -60,6 +60,18 @@ class Mapa():
         else:
             return 1.5
 
+    def calorias(self,casilla):
+        for f in range(self.alto):
+            for c in range(self.ancho):
+                if self.mapa[f][c] == '.':
+                    return 2
+                elif self.mapa[f][c] == '~':
+                    return 4
+                elif self.mapa[f][c] == '*':
+                    return 6
+                else:
+                    return 0
+
 
 # Funciones
 # ---------------------------------------------------------------------
