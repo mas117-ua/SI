@@ -47,7 +47,10 @@ def astar(mapa, origen, destino, camino):
             camino_reconstruido = []
             while n is not None:
                 camino_reconstruido.append(n.getPos())
-                cal_tot += mapa.calorias(Casilla(n.getPos()[0], n.getPos()[1]))
+                if n.getPadre() == None:
+                    cal_tot+=0      #ya que no sumamos las calorias de la casilla origen
+                else:
+                    cal_tot += mapa.calorias(Casilla(n.getPos()[0], n.getPos()[1]))
 
                 n = n.getPadre()
             camino_reconstruido.reverse()  # Invertimos el camino
@@ -59,7 +62,7 @@ def astar(mapa, origen, destino, camino):
             print("Camino encontrado:", camino_reconstruido)
             imprimir_matriz_estados(mapa_estados)
 
-            return coste_tot,cal_tot  # Terminar la función, ya que hemos encontrado el destino
+            return coste_tot, cal_tot  # Terminar la función, ya que hemos encontrado el destino
 
         else:
             lf.remove(n)

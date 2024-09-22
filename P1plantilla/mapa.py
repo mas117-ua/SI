@@ -60,17 +60,22 @@ class Mapa():
         else:
             return 1.5
 
-    def calorias(self,casilla):
-        for f in range(self.alto):
-            for c in range(self.ancho):
-                if self.mapa[f][c] == '.':
-                    return 2
-                elif self.mapa[f][c] == '~':
-                    return 4
-                elif self.mapa[f][c] == '*':
-                    return 6
-                else:
-                    return 0
+    def calorias(self, casilla):
+        fila = casilla.getFila()
+        col = casilla.getCol()
+
+        # Accede al valor de la celda en el mapa
+        celda = self.mapa[fila][col]
+
+        # Retorna las calorías según el tipo de celda
+        if celda == 0:  # Hierba
+            return 2
+        elif celda == 4:  # Agua
+            return 4
+        elif celda == 5:  # Roca
+            return 6
+        else:
+            return 0  # Para cualquier otro caso
 
 
 # Funciones
