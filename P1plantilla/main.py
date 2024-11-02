@@ -131,105 +131,99 @@ def astar(mapa, origen, destino, camino):
     print("Error: no se encuentra solución con el algoritmo")
 
 
-def astar_subepsilon(mapa, origen, destino, camino):
+def astar_epsilon(mapa, origen, destino, camino, epsilon=0.5):
     cal_tot = 0
-    i = 0
     contador_nodos = 0
-    lfoc = []
-    factor = 2
-    li = []
-    lf = []
+
+    li = []  # Lista interior
+    lf = []  # Lista frontera
     estado_origen = Estado(origen.getFila(), origen.getCol(), 0, 0, padre=None)
     lf.append(estado_origen)
 
     mapa_nodos = [[-1 for j in range(mapa.getAncho())] for i in range(mapa.getAlto())]
 
     while lf:
-        # Obtenemos el nodo con menor f de lf:
-        n = lf[0]  # n = estado con menor f
+        # Obtener el mejor f(n) de la lista frontera
+        f_min = min(estado.getF() for estado in lf)
 
+        # Construir lista focal con los nodos que cumplen f(n) ≤ (1+ε) * f_min
+        lista_focal = [estado for estado in lf if estado.getF() <= (1 + epsilon) * f_min]
 
-        for est in lf:
-            if est.getF() < n.getF():
-                n = est
+        # Seleccionar el nodo de la lista focal con menor coste en calorías
+        n = lista_focal[0]
+        min_calorias = float('inf')
+        for estado in lista_focal:
+            calorias = mapa.calorias(Casilla(estado.getPos()[0], estado.getPos()[1]))
+            if calorias < min_calorias:
+                min_calorias = calorias
+                n = estado
 
+        # Verificar si hemos llegado al destino
         if n.getPos() == (destino.getFila(), destino.getCol()):
-            coste_tot = n.getF()  # Utilizamos n.getF() para el coste total
+            coste_tot = n.getF()
             # Reconstruir camino
             camino_reconstruido = []
             while n is not None:
-
                 camino_reconstruido.append(n.getPos())
                 if n.getPadre() == None:
-                    cal_tot+=0      #ya que no sumamos las calorias de la casilla origen
+                    cal_tot += 0  # No sumamos calorías de la casilla origen
                 else:
                     cal_tot += mapa.calorias(Casilla(n.getPos()[0], n.getPos()[1]))
-
-
-
-
                 n = n.getPadre()
-            camino_reconstruido.reverse()  # Invertimos el camino
+            camino_reconstruido.reverse()
 
-            # Marcar el camino en la matriz 'camino' para visualizarlo
+            # Marcar el camino en la matriz
             for (fila, col) in camino_reconstruido:
-                camino[fila][col] = 'X'  # Marcar el camino de solución con 'X' por ejemplo
+                camino[fila][col] = 'X'
 
             print("Camino encontrado:", camino_reconstruido)
-
             print("Orden de generación de los estados:")
             for fila in mapa_nodos:
-                print(" ".join(f"{valor:2}" for valor in fila))  # Alinear con un ancho de 2
-            print("Numero de nodos explorados: " ,contador_nodos)
+                print(" ".join(f"{valor:2}" for valor in fila))
+            print("Numero de nodos explorados: ", contador_nodos)
 
-            return coste_tot, cal_tot  # Terminar la función, ya que hemos encontrado el destino
+            return coste_tot, cal_tot
 
-        else:
-            lf.remove(n)
-            li.append(n)
+        # Si no hemos llegado al destino, expandir el nodo
+        lf.remove(n)
+        li.append(n)
 
-            mapa_nodos[n.getPos()[0]][n.getPos()[1]] = contador_nodos
-            contador_nodos += 1
+        mapa_nodos[n.getPos()[0]][n.getPos()[1]] = contador_nodos
+        contador_nodos += 1
 
-            # Obtener los hijos de n
-            hijos_n = []
-            casilla_n = Casilla(n.getPos()[0], n.getPos()[1])
-            hijos_casilla_n = mapa.movimientosValidos(casilla_n)
+        # Obtener los sucesores
+        hijos_n = []
+        casilla_n = Casilla(n.getPos()[0], n.getPos()[1])
+        hijos_casilla_n = mapa.movimientosValidos(casilla_n)
 
-            for movimiento in hijos_casilla_n:
-                hijos_n.append((movimiento[0], movimiento[1]))
+        for movimiento in hijos_casilla_n:
+            hijos_n.append((movimiento[0], movimiento[1]))
 
-            for m in hijos_n:  # Recorremos cada tupla de n
-                # Calcular g y f
-                coste_g_m = n.getG() + mapa.coste(n.getPos(), (m[0], m[1]))
-                coste_f_m = coste_g_m  # f = g porque h = 0
-                h_m = manhattan(destino, m)
-                h_e = euclidea(destino, m)
-                h_o = octil(destino,m)
-                #coste_f_m = coste_g_m + h_m
+        for m in hijos_n:
+            # Calcular g y f
+            coste_g_m = n.getG() + mapa.coste(n.getPos(), (m[0], m[1]))
+            h_m = manhattan(destino, m)
+            coste_f_m = coste_g_m + h_m
 
-                # Verificamos si m no está en la lista interior (li)
-                if not any(estadoli.getPos() == m for estadoli in li):
-                    # Si m no está en la lista frontera (lf)
-                    if not any(estadolf.getPos() == m for estadolf in lf):
-                        estado_m = Estado(m[0], m[1], coste_g_m, coste_f_m, padre=n)
+            # Verificar si el sucesor está en la lista interior
+            if not any(estadoli.getPos() == m for estadoli in li):
+                # Verificar si está en la lista frontera
+                if not any(estadolf.getPos() == m for estadolf in lf):
+                    estado_m = Estado(m[0], m[1], coste_g_m, coste_f_m, padre=n)
+                    lf.append(estado_m)
+                else:
+                    for estadolf in lf:
+                        if estadolf.getPos() == m:
+                            if coste_f_m < estadolf.getF():
+                                estadolf.setPadre(n)
+                                estadolf.setF(coste_f_m)
+                                estadolf.setG(coste_g_m)
+                            break
 
-                        min_f = min(estadolf.getF() for estadolf in lf)
-                        if coste_f_m <= factor * min_f:
-                            lfoc.append(estado_m)
-                        lf.append(estado_m)
-                    else:
-                        for estadolf in lf:
-                            if estadolf.getPos() == m:
-                                if coste_f_m < estadolf.getF():         #AQUI TENIA G POR SI ME VA MAL
-                                    estadolf.setPadre(n)
-                                    estadolf.setF(coste_f_m)  # Actualizar f
-                                    estadolf.setG(coste_g_m)  # Actualizar g
-                                break
-
-
-    i += 1
     print("Error: no se encuentra solución con el algoritmo")
+    return -1, 0
+
+
 
 
 
@@ -343,7 +337,7 @@ def main():
                                 print('Error: No existe un camino válido entre origen y destino')
                         else:
                             ###########################
-                            #coste, cal=llamar a A estrella subepsilon
+                            coste, cal=astar_epsilon(mapi,origen,destino,camino)
                             if coste==-1:
                                 print('Error: No existe un camino válido entre origen y destino')
 

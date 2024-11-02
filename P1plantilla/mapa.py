@@ -50,11 +50,9 @@ class Mapa():
         return movimientos
 
     def coste(self,n_pos, m_pos):
-        # Cálculo del coste de moverse entre dos casillas en un mapa cuadrado
         x1, y1 = n_pos
         x2, y2 = m_pos
 
-        # Si es un movimiento en línea recta (horizontal o vertical), el coste es 1
         if x1 == x2 or y1 == y2:
             return 1
         else:
@@ -64,10 +62,8 @@ class Mapa():
         fila = casilla.getFila()
         col = casilla.getCol()
 
-        # Accede al valor de la celda en el mapa
         celda = self.mapa[fila][col]
 
-        # Retorna las calorías según el tipo de celda
         if celda == 0:  # Hierba
             return 2
         elif celda == 4:  # Agua
@@ -75,7 +71,7 @@ class Mapa():
         elif celda == 5:  # Roca
             return 6
         else:
-            return 0  # Para cualquier otro caso
+            return 0
 
 
 # Funciones
