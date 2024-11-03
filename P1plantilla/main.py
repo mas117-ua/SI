@@ -108,7 +108,7 @@ def astar(mapa, origen, destino, camino):
                 #coste_f_m = coste_g_m  # f = g porque h = 0
                 h_m = manhattan(destino, m)
                 h_e = euclidea(destino, m)
-                h_o = octil(destino,m)
+                h_o = octil(destino, m)
                 coste_f_m = coste_g_m + h_m
 
                 # Verificamos si m no está en la lista interior (li)
@@ -129,6 +129,7 @@ def astar(mapa, origen, destino, camino):
 
     i += 1
     print("Error: no se encuentra solución con el algoritmo")
+    return -1,0
 
 
 def astar_epsilon(mapa, origen, destino, camino, epsilon=0.5):
